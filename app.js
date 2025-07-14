@@ -58,10 +58,38 @@ app.get('/posts/:id', (req, res, next) => {
 });
 
 app.post('/posts', (req, res) => {
-    const {titre,contenu}= req.body;
-
-
+  try {
+    const posts = readJson('./data/posts.json');
+    const newPost = req.body;
+    posts.push(newPost);
+    writeJson('./data/posts.json',posts);
+    res.status(201).json(newPost);
+  } catch (err) {
+    next(err);
+  }
 });
+
+app.patch('/posts/:id', (req, res) => {
+  try {
+    const posts = readJson('./data/posts.json');
+    const post = posts.find(p => p.id === parseInt(req.params.id));
+    if (post) {
+      Object.assign(post, req.body); 
+      writeJson('./data/posts.json', posts);
+      res.json(post);
+    } else {
+      res.status(404).send('Article non trouvé');
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+
+
+
+
 
 
 // Lancement du serveur
